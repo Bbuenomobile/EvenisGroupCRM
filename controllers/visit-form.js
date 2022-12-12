@@ -118,3 +118,19 @@ exports.saveVisitForm = async (req, res, next) => {
         })
     }
 }
+
+exports.getVisitorForm = async (req, res, next) => {
+    const {id} = req.query;
+    let result = await VisitFormModel.findById(id);
+    if (result) {
+        return res.status(200).json({
+            status: true,
+            data: result
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            data: result
+        })
+    }
+}
