@@ -2,6 +2,7 @@ const Router = require('express').Router();
 
 const routes = [
     'auth',
+    'visit-form',
 ]
 
 module.exports = {
