@@ -24,9 +24,9 @@ exports.saveVisitForm = async (req, res, next) => {
         detailsReferenceAppartment3,
         visitorSignature,
     } = req.body
-
+    console.log(req.body);
     let result = await VisitFormModel.findById(visitFormId);
-
+    console.log(result);
     if (result) {
         if (visitorSignature !== '') {
             let datetoday = new Date();
