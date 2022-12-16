@@ -1,6 +1,5 @@
 const VisitFormModel = require("../models/visit-form");
 
-
 exports.saveVisitForm = async (req, res, next) => {
     let {
         visitFormId,
@@ -131,6 +130,23 @@ exports.getVisitorForm = async (req, res, next) => {
         return res.status(400).json({
             status: false,
             data: result
+        })
+    }
+}
+
+exports.getSignedForms = async (req, res, next) => {
+    let results = await VisitFormModel.find({ visitorSignature: {$exists: true, $ne: ""}, formSignedOn: {$exists: true, $ne: null} })
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results
         })
     }
 }
