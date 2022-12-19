@@ -1,4 +1,30 @@
 const VisitFormModel = require("../models/visit-form");
+const fs = require("fs");
+const pdf = require('pdf-creator-node');
+
+const formPromise = async (data) => {
+    const html = fs.readFileSync("utils/signed_visitor_form.html", 'utf-8');
+
+    let formDocument = {
+        html: html,
+        data: data,
+        path: `./signed-forms/${data.firstName + "-" + data._id}`
+    }
+
+    const options = {
+        format: 'A4',
+        orientation: 'portrait',
+        border: '10mm',
+        remarkable: true,
+        footer: {
+            height: "5mm",
+            contents: {
+                default: '<span style="color: #444; text-align:right; ">Page {{page}}</span> of <span>{{pages}}</span>', // fallback value
+            }
+        }
+    }
+    return await pdf.create(formDocument, options);
+}
 
 exports.saveVisitForm = async (req, res, next) => {
     let {
@@ -149,4 +175,28 @@ exports.getSignedForms = async (req, res, next) => {
             data: results
         })
     }
+}
+
+exports.prepareFormForDownload = async (req, res, next) => {
+    const { id } = req.body;
+    let result = await VisitFormModel.findById(id);
+    if (result) {
+        formPromise(result).then(success => {
+            console.log(success);
+            let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
+            return res.status(200).json({
+                status: true,
+                filepath: file
+            })
+        }).catch(err => {
+            console.log(err)
+            return res.status(400).json({
+                status: true,
+                filepath: file
+            })
+        })
+    } else {
+        console.log("else");
+    }
+
 }

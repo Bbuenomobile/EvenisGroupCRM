@@ -5,6 +5,7 @@ const auth = require("../../middleware/auth");
 router.post("/saveVisitForm", VisitFormController.saveVisitForm);
 router.get("/visitorForm", VisitFormController.getVisitorForm);
 router.get("/allSignedForms", VisitFormController.getSignedForms);
+router.post("/download-form", VisitFormController.prepareFormForDownload);
 
 module.exports = {
     router: router,
