@@ -16,6 +16,7 @@ const formPromise = async (data) => {
         orientation: 'portrait',
         border: '10mm',
         remarkable: true,
+        childProcessOptions: { env: { OPENSSL_CONF: '/dev/null' } },
         footer: {
             height: "5mm",
             contents: {
@@ -212,7 +213,8 @@ exports.prepareFormForDownload = async (req, res, next) => {
             id: result._id,
         }
 
-        formPromise(data).then(success => {
+        formPromise(data)
+        .then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
             return res.status(200).json({
                 status: true,
@@ -227,5 +229,4 @@ exports.prepareFormForDownload = async (req, res, next) => {
     } else {
         console.log("else");
     }
-
 }
