@@ -220,8 +220,7 @@ exports.prepareFormForDownload = async (req, res, next) => {
         }).catch(err => {
             console.log(err)
             return res.status(400).json({
-                status: true,
-                filepath: file
+                status: false,
             })
         })
     } else {
