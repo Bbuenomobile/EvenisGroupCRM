@@ -163,7 +163,7 @@ exports.getVisitorForm = async (req, res, next) => {
 }
 
 exports.getSignedForms = async (req, res, next) => {
-    let results = await VisitFormModel.find({ visitorSignature: {$exists: true, $ne: ""}, formSignedOn: {$exists: true, $ne: null} })
+    let results = await VisitFormModel.find({ visitorSignature: {$exists: true, $ne: ""}, formSignedOn: {$exists: true, $ne: null} }).sort({ createdAt: -1 }).exec();
     if (results.length > 0) {
         return res.status(200).json({
             status: true,
@@ -182,6 +182,7 @@ exports.getSignedForms = async (req, res, next) => {
 exports.prepareFormForDownload = async (req, res, next) => {
     const { id } = req.body;
     let result = await VisitFormModel.findById(id);
+    console.log(result);
     if (result) {
         let summary = "";
         if (result.montantCommission === 'location') {
