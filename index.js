@@ -19,6 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/static", express.static(path.join(__dirname, '/build/static')));
 
+app.use("/signed-forms" ,express.static("signed-forms"))
+
 app.use('/', router.init());
 
 app.get("/*", (req, res) => {

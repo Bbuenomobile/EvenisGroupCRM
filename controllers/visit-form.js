@@ -3,12 +3,12 @@ const fs = require("fs");
 const pdf = require('pdf-creator-node');
 
 const formPromise = async (data) => {
-    const html = fs.readFileSync("utils/signed_visitor_form.html", 'utf-8');
+    const html = fs.readFileSync("utils/evenis.html", 'utf-8');
 
     let formDocument = {
         html: html,
         data: data,
-        path: `./signed-forms/${data.firstName + "-" + data._id}`
+        path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
     }
 
     const options = {
@@ -19,7 +19,9 @@ const formPromise = async (data) => {
         footer: {
             height: "5mm",
             contents: {
+                first: 'First Page',
                 default: '<span style="color: #444; text-align:right; ">Page {{page}}</span> of <span>{{pages}}</span>', // fallback value
+                last: 'Last Page'
             }
         }
     }
@@ -181,8 +183,35 @@ exports.prepareFormForDownload = async (req, res, next) => {
     const { id } = req.body;
     let result = await VisitFormModel.findById(id);
     if (result) {
-        formPromise(result).then(success => {
-            console.log(success);
+        let summary = "";
+        if (result.montantCommission === 'location') {
+            summary = 'b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease.'
+        } else if (result.montantCommission === 'achat') {
+            summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price.'
+        } else {
+            summary = result.montantCommission;
+        }
+
+        let data = {
+            date: result.formSignedOn,
+            name: result.firstName + " " + result.lastName,
+            summary: summary,
+            passportNumber: result.passportNumber,
+            address: result.streetAddress1 + " " + result.streetAddress2,
+            phoneNumber: result.phoneNumber,
+            email: result.visitorEmail,
+            propertyAddress1: result.referenceAppartment1,
+            propertyDetails1: result.detailsReferenceAppartment1,
+            propertyAddress2: result.referenceAppartment2,
+            propertyDetails2: result.detailsReferenceAppartment2,
+            propertyAddress3: result.referenceAppartment3,
+            propertyDetails3: result.detailsReferenceAppartment3,
+            signature: result.visitorSignature,
+            firstName: result.firstName,
+            id: result._id,
+        }
+
+        formPromise(data).then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
             return res.status(200).json({
                 status: true,
