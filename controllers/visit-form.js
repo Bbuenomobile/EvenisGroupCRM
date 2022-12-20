@@ -25,10 +25,7 @@ const formPromise = async (data) => {
             }
         }
     }
-    return await pdf.create(formDocument, options).toFile(`${data.firstName + "-" + data.id}.pdf`, function(err, res) {
-        if (err) return console.log(err);
-        console.log(res); 
-      });;
+    return await pdf.create(formDocument, options)
 }
 
 exports.saveVisitForm = async (req, res, next) => {
