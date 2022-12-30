@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const visitFormSchema = new Schema({
+    formLanguage: {
+        type: String,
+        trime: true,
+    },
     montantCommission: {
         type: String,
         trim: true,

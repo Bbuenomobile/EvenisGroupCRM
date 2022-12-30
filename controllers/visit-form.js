@@ -3,7 +3,7 @@ const fs = require("fs");
 const pdf = require('pdf-creator-node');
 
 const formPromise = async (data) => {
-    const html = fs.readFileSync("utils/evenis.html", 'utf-8');
+    const html = fs.readFileSync("utils/evenis-english.html", 'utf-8');
 
     let formDocument = {
         html: html,
@@ -52,6 +52,7 @@ exports.saveVisitForm = async (req, res, next) => {
         referenceAppartment3,
         detailsReferenceAppartment3,
         visitorSignature,
+        formLanguage,
     } = req.body
     console.log(req.body);
     let result = await VisitFormModel.findById(visitFormId);
@@ -130,6 +131,7 @@ exports.saveVisitForm = async (req, res, next) => {
             detailsReferenceAppartment3: detailsReferenceAppartment3,
             visitorSignature: visitorSignature,
             formGeneratedOn: form_generated_on,
+            formLanguage: formLanguage,
         })
 
         visitForm.save().then(success => {
