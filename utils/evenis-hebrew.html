@@ -31,15 +31,22 @@
 </div>
 </div>
 <div style="padding: 40px; display: grid ;justify-content: center; padding-top: 0px;">
-    <p style="font-family:Inter; font-weight: 700; font-size: 20px;margin-bottom: 5px; text-align: center;">הזמנת שירותי תיווך במקרקעין    </p>
-    <span style="font-family:Inter; font-weight: 400; font-size: 15px; ">"שנינו ביחד וכל אחד לחוד – להלן "המזמין"
-        אני/ו מתחייב/ים להודיע ולשתף את המתווך בכל התפתחות בעסקה שתתבצע ביני/נו הקונים/ שוכרים לבין בעלי הנכסים שהוצגו בפני/נו [ בין ישירות וביו ע"י צד ג'
-        אני/ו מתחייבים לשלם למתווך מייד עם חתימת הסכם מחייב לגבי הנכסים שהוצגו לנו ע"י המתווך [בין ישירות ובין ע"י צד ג'] וזאת גם אם לא אשתף את המתווך במהלכי העסקה, ובכל מחיר שיסוכם במו"מ.המזמין מצהיר ומתחייב לעדכן כל גורם הקשור לנכסים שהוצגו בפני כי הופניתי/נו לנכסים ע"י המתווך .אני מתחייב שלא למסור לאיש כל מידע שנמסר לי ע"י המתווך אלא לשם ביצוע העסקה שבנדון
-        </span>
-    <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 5px; ">Name : {{name}}</p>
-    <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 5px; ">דמי התיווך המסוכמים הם כדלהלן *
+    <p style="font-family:Inter; font-weight: 700; font-size: 20px;margin-bottom: 5px; text-align: center;">הזמנת שירותי תיווך במקרקעין
     </p>
+    <span style="font-family:Inter; font-weight: 400; font-size: 15px; text-align: end;">"שנינו ביחד וכל אחד לחוד – להלן "המזמין"<br/>
+        אני/ו מתחייב/ים להודיע ולשתף את המתווך בכל התפתחות בעסקה שתתבצע ביני/נו הקונים/ שוכרים לבין בעלי הנכסים שהוצגו בפני/נו [ בין ישירות וביו ע"י צד ג' 
+        אני/ו מתחייבים לשלם למתווך מייד עם חתימת הסכם מחייב לגבי הנכסים שהוצגו לנו ע"י המתווך [בין ישירות ובין ע"י צד ג'] וזאת גם אם לא אשתף את המתווך במהלכי העסקה, ובכל מחיר שיסוכם במו"מ.המזמין מצהיר ומתחייב לעדכן כל גורם הקשור לנכסים שהוצגו בפני כי הופניתי/נו לנכסים ע"י המתווך .אני מתחייב שלא למסור לאיש כל מידע שנמסר לי ע"י המתווך אלא לשם ביצוע העסקה שבנדון
+        
+        
+        </span>
+ 
+    <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 5px; ">Name : {{name}}</p>
+    <p style="font-family:Inter; font-weight: 700; font-size: 20px;margin-bottom: 5px; text-align: end;">דמי התיווך המסוכמים הם כדלהלן *
+    </p>
+
     <span style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 5px; color:#1A5E9A">{{ summary }}</span>
+   
+    
 <div class="" style="display: flex; justify-content: center; text-align: center; border: 1px solid #FFF0EF; background-color: #FFF0EF; border-radius: 4px;">
 <p class="" style="color:#E21B1B; font-family:Inter; font-weight: 900; font-size: 15px;">לכל תשלום שיסוכם יתווסף מע"מ כחוק לפי השיעור שבתוקף ביום התשלום.
 </p>
@@ -48,7 +55,7 @@
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">CLIENT ADRESS : {{ address }}</p>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">CLIENT PHONE NUMBER : {{ phoneNumber }}</p>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">CLIENT EMAIL : {{ email }}</p>
-<h2 style="font-family:Inter; font-weight: 700; font-size: 20px;margin-bottom:0px">Properties Information :</h2>
+<h2 style="font-family:Inter; text-align: end; font-weight: 700; font-size: 20px;margin-bottom:0px ">מידע על נכסים :</h2>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">Property Address & Details n°1 : {{ propertyAddress1 }}</p>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">Reference / Name of the Apartment n°1: {{ propertyDetails1 }}</p>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">Property Address & Details n°2 : {{ propertyAddress2 }}</p>
@@ -56,7 +63,7 @@
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">Property Address & Details n°3 : {{ propertyAddress3 }}</p>
 <p style="font-family:Inter; font-weight: 600; font-size: 15px;margin-bottom: 0px;">Reference / Name of the Apartment n°3: {{ propertyDetails3 }}</p>
 <div style="margin-top: 50px;">
-    <p style="font-family:Inter; font-weight: 700; font-size: 20px;">SIGNATURE HERE : </p>
+    <p style="font-family:Inter; font-weight: 700; font-size: 22px;">חתימת לקוח : </p>
     <img src="{{ signature }}" height="100" width="200" />
 </div>
 
