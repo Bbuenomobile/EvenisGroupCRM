@@ -6,8 +6,10 @@ const formPromise = async (data) => {
     let html; 
     if (data.formLanguage == 'English') {
         html = fs.readFileSync("utils/evenis-english.html", 'utf-8');
-    } else {
+    } else if (data.formLanguage == "French") {
         html = fs.readFileSync("utils/evenis-french.html", 'utf-8');
+    } else if (data.formLanguage == "Hebrew") {
+        html = fs.readFileSync("utils/evenis-hebrew.html", 'utf-8');
     }
     let formDocument = {
         html: html,
@@ -252,4 +254,43 @@ exports.deleteDocument = async (req, res, next) => {
             message: 'Form Delete Failed! Please Try Again Later.'
         })
     })
+}
+
+exports.filterForms = async (req, res, next) => {
+    let query = req.body;
+    console.log(query);
+     if (query.name) {
+        let first, last = query.name.split(" ");
+        let result = await VisitFormModel.findOne({ firstName: first, lastName: last });
+        console.log(result);
+        if (result) {
+            return res.status(200).json({
+                status: true,
+                total: 1,
+                data: result
+            })
+        } else {
+            return res.status(400).json({
+                status: false,
+                total: 0,
+                data: []
+            })
+        }
+     } else {
+        let results = await VisitFormModel.find(query);
+        console.log(results);
+        if (results.length > 0)  {
+            return res.status(200).json({
+                status: true,
+                total: results.length,
+                data: results
+            })
+        } else {
+            return res.status(400).json({
+                status: false,
+                total: 0,
+                data: []
+            })
+        }
+     }
 }
