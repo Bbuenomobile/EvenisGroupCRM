@@ -281,12 +281,12 @@ exports.filterForms = async (req, res, next) => {
         let first = query.name.split(" ")[0];
         let last = query.name.split(" ")[1];
         console.log(first, last)
-        let result = await VisitFormModel.findOne({ firstName: first, lastName: last });
+        let result = await VisitFormModel.find({ firstName: first, lastName: last });
         console.log(result);
-        if (result) {
+        if (result.length > 0) {
             return res.status(200).json({
                 status: true,
-                total: 1,
+                total: resul.length,
                 data: result
             })
         } else {
