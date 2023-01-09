@@ -278,7 +278,9 @@ exports.filterForms = async (req, res, next) => {
     const query = req.body;
     console.log(query);
      if (query.name) {
-        let first, last = query.name.split(" ");
+        let first = query.name.split(" ")[0];
+        let last = query.name.split(" ")[1];
+        console.log(first, last)
         let result = await VisitFormModel.findOne({ firstName: first, lastName: last });
         console.log(result);
         if (result) {
