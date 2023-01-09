@@ -275,42 +275,36 @@ exports.deleteDocument = async (req, res, next) => {
 }
 
 exports.filterForms = async (req, res, next) => {
-    const query = req.body;
-    console.log(query);
-     if (query.name) {
-        let first = query.name.split(" ")[0];
-        let last = query.name.split(" ")[1];
-        console.log(first, last)
-        let result = await VisitFormModel.find({ firstName: first, lastName: last });
-        console.log(result);
-        if (result.length > 0) {
-            return res.status(200).json({
-                status: true,
-                total: result.length,
-                data: result
-            })
+    const body = req.body;
+    const query = {};
+
+    Object.keys(body).map((bodyKey) => {
+        if (bodyKey == 'name') {
+            let firstName = body[bodyKey].split(" ")[0];
+            let lastName = body[bodyKey].split(" ")[1];
+            query['firstName'] = firstName;
+            query['lastName'] = lastName;
+        } else if (bodyKey == 'languages') {
+            query['formLanguage'] = body[bodyKey];
         } else {
-            return res.status(400).json({
-                status: false,
-                total: 0,
-                data: []
-            })
+            query[bodyKey] = body[bodyKey];
         }
-     } else {
-        let results = await VisitFormModel.find(query);
-        console.log(results);
-        if (results.length > 0)  {
-            return res.status(200).json({
-                status: true,
-                total: results.length,
-                data: results
-            })
-        } else {
-            return res.status(400).json({
-                status: false,
-                total: 0,
-                data: []
-            })
-        }
-     }
+
+    })
+
+    let results = await VisitFormModel.find(query)
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results
+        })
+    }
+    
 }
