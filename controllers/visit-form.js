@@ -194,14 +194,32 @@ exports.prepareFormForDownload = async (req, res, next) => {
     console.log(result);
     if (result) {
         let summary = "";
-        if (result.montantCommission === 'location') {
-            summary = 'b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease.'
-        } else if (result.montantCommission === 'achat') {
-            summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price.'
-        } else {
-            summary = result.montantCommission;
+        if (result.formLanguage == 'Hebrew') {
+            if (result.montantCommission === 'location') {
+                summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
+            } else if (result.montantCommission === 'achat') {
+                summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
+            } else {
+                summary = result.montantCommission;
+            }    
+        } else if ( result.formLanguage == "French") {
+            if (result.montantCommission === 'location') {
+                summary = "b) Location: montant d'un mois de loyer H. T"
+            } else if (result.montantCommission === 'achat') {
+                summary = 'a) Achat: 2% H. T du montant total de la transaction'
+            } else {
+                summary = result.montantCommission;
+            }
+        } else if (result.formLanguage == "English") {
+            if (result.montantCommission === 'location') {
+                summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
+            } else if (result.montantCommission === 'achat') {
+                summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
+            } else {
+                summary = result.montantCommission;
+            }
         }
-
+        
         let data = {
             date: result.formSignedOn,
             name: result.firstName + " " + result.lastName,
@@ -257,7 +275,7 @@ exports.deleteDocument = async (req, res, next) => {
 }
 
 exports.filterForms = async (req, res, next) => {
-    let query = req.body;
+    const query = req.body;
     console.log(query);
      if (query.name) {
         let first, last = query.name.split(" ");
