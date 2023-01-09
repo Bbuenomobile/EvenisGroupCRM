@@ -286,7 +286,7 @@ exports.filterForms = async (req, res, next) => {
         if (result.length > 0) {
             return res.status(200).json({
                 status: true,
-                total: resul.length,
+                total: result.length,
                 data: result
             })
         } else {
