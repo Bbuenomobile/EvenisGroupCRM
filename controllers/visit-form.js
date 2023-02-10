@@ -59,6 +59,7 @@ exports.saveVisitForm = async (req, res, next) => {
         detailsReferenceAppartment3,
         visitorSignature,
         formLanguage,
+        formAgent
     } = req.body
     console.log(req.body);
     let result = await VisitFormModel.findById(visitFormId);
@@ -138,6 +139,7 @@ exports.saveVisitForm = async (req, res, next) => {
             visitorSignature: visitorSignature,
             formGeneratedOn: form_generated_on,
             formLanguage: formLanguage,
+            formAgent: formAgent,
         })
 
         visitForm.save().then(success => {
@@ -191,7 +193,6 @@ exports.getSignedForms = async (req, res, next) => {
 exports.prepareFormForDownload = async (req, res, next) => {
     const { id } = req.body;
     let result = await VisitFormModel.findById(id);
-    console.log(result);
     if (result) {
         let summary = "";
         if (result.formLanguage == 'Hebrew') {

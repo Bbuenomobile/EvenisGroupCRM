@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const User = require('./user');
 
 const visitFormSchema = new Schema({
     formLanguage: {
         type: String,
         trime: true,
+    },
+    formAgent: {
+        type: Schema.ObjectId,
+        ref: () => User
     },
     montantCommission: {
         type: String,
