@@ -309,3 +309,21 @@ exports.filterForms = async (req, res, next) => {
     }
     
 }
+
+exports.getUserSignedForms = async (req, res, next) => {
+    let { agentId }  = req.query;
+    let results = await VisitFormModel.find({ formAgent: agentId });
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results,
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results,
+        })
+    }
+}
