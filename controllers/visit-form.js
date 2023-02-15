@@ -71,6 +71,7 @@ exports.saveVisitForm = async (req, res, next) => {
             let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
             let yyyy = datetoday.getFullYear();
             let form_signed_on = dd + "-" + mm + "-" + yyyy;
+            console.log(form_signed_on);
             await VisitFormModel.findByIdAndUpdate(visitFormId, {
                 montantCommission: montantCommission,
                 firstName: firstName,
