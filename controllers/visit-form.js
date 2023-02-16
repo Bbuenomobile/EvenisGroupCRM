@@ -3,7 +3,7 @@ const fs = require("fs");
 const pdf = require('pdf-creator-node');
 
 const formPromise = async (data) => {
-    let html; 
+    let html = "" ;
     if (data.formLanguage == 'English') {
         html = fs.readFileSync("utils/evenis-english.html", 'utf-8');
     } else if (data.formLanguage == "French") {
