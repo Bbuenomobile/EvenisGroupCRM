@@ -11,12 +11,13 @@ const formPromise = async (data) => {
     } else if (data.formLanguage == "Hebrew") {
         html = fs.readFileSync("utils/evenis-hebrew.html", 'utf-8');
     }
+    console.log(html)
     let formDocument = {
         html: html,
         data: data,
         path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
     }
-
+    console.log(formDocument)
     const options = {
         format: 'A4',
         orientation: 'portrait',
