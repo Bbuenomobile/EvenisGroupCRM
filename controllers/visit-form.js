@@ -274,7 +274,7 @@ exports.prepareFormForDownload = async (req, res, next) => {
             name: result.firstName + " " + result.lastName,
             summary: summary == undefined ? '' : summary, 
             passportNumber: result.passportNumber == undefined ? '' : result.passportNumber,
-            address: result.streetAddress1 + " " + result.streetAddress2,
+            address: result.streetAddress1 == undefined ? '' : result.streetAddress1 + " " + result.streetAddress2 == undefined ? '' : result.streetAddress2,
             phoneNumber: result.phoneNumber == undefined ? '' : result.phoneNumber,
             email: result.visitorEmail == undefined ? '' : result.visitorEmail,
             propertyAddress1: result.referenceAppartment1 == undefined ? '' : result.referenceAppartment1,
