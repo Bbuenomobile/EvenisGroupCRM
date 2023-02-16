@@ -238,6 +238,7 @@ exports.getSignedForms = async (req, res, next) => {
 exports.prepareFormForDownload = async (req, res, next) => {
     const { id } = req.body;
     let result = await VisitFormModel.findById(id);
+    console.log(result);
     if (result) {
         let summary = "";
         if (result.formLanguage == 'Hebrew') {
