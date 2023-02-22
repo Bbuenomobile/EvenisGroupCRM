@@ -8,6 +8,8 @@ router.post('/signin', authController.Signin);
 
 router.get("/auth", authController.Verify)
 
+router.get('/getAllAdmins', authController.getAllAdmins);
+
 module.exports = {
     router: router,
     basePath: '/'

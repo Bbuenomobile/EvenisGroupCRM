@@ -149,3 +149,20 @@ exports.Verify = async (req, res, next) => {
         res.send({ message: "Invalid Token", status: 401 });
     }
 };
+
+exports.getAllAdmins = async (req, res, next) => {
+    let results = await User.find({ username: { $nin: ["Test", "David", "Moshe"] } });
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results,
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results,
+        })
+    }
+}
