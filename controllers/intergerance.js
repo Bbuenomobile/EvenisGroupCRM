@@ -1,5 +1,6 @@
-const PartnerAgency = require("../models/intergerance");
+const PartnerAgency = require("../models/partner-agency");
 const Propriety = require("../models/propriety");
+const IntergeranceForm = require("../models/intergerance");
 
 exports.addNewAgency = async (req, res, next) => {
     let {
