@@ -2,6 +2,43 @@ const PartnerAgency = require("../models/partner-agency");
 const Propriety = require("../models/propriety");
 const IntergeranceForm = require("../models/intergerance");
 
+exports.getAllAgencies = async (req, res, next) => {
+    let results = await PartnerAgency.find({}).sort({ createAt: -1 }).exec();
+
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results,
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results,
+        })
+    }
+} 
+
+
+exports.getAllProperties = async (req, res, next) => {
+    let results = await Propriety.find({}).sort({ createAt: -1 }).exec();
+
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results,
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results,
+        })
+    }
+} 
+
 exports.addNewAgency = async (req, res, next) => {
     let {
         agency_name, //mendatory
