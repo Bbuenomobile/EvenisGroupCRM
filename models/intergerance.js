@@ -5,6 +5,9 @@ const PartnerAgency = require("./partner-agency");
 const Propriety = require("./propriety");
 
 const IntergeranceSchema = new Schema({
+    autoId: {
+        type: Number,
+    },
     formLanguage: {
         type: String,
         trime: true,

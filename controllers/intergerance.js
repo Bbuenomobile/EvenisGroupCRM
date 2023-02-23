@@ -46,7 +46,6 @@ exports.addNewAgency = async (req, res, next) => {
         email,
         agency_id,
     } = req.body;
-
     let result = await PartnerAgency.findOne({ agency_name: agency_name })
     if (result) {
         return res.status(400).json({
@@ -134,7 +133,12 @@ exports.saveIntergeranceForm = async (req, res, next) => {
     let yyyy = datetoday.getFullYear();
     let formGeneratedOn = dd + "-" + mm + "-" + yyyy;
 
+    let autoId = 0;
+    let totalForms = await IntergeranceForm.find({}).exec();
+    autoId = totalForms + 1;
+
     // implementing visitor side
+    
     let result = await IntergeranceForm.findById(formId);
     if (result) {
         if (signature != "") {
@@ -165,7 +169,11 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                     message: 'Form Update Failed!'
                 })
             })
-        } else { // the agency employee side
+        } else { 
+            
+        }
+        // the agency employee side - its a new form
+    } else {
             let datetoday = new Date();
             let dd = String(datetoday.getDate()).padStart(2, '0');
             let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -182,6 +190,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 signature: signature,
                 formGeneratedOn: formGeneratedOn,
                 formSignedOn: formSignedOn,
+                autoId: autoId,
             })
 
             newForm.save().then(success => {
@@ -197,7 +206,6 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                     message: 'Form Save Failed! Please Try Again.'
                 })
             })
-        }
     }
 
 }
