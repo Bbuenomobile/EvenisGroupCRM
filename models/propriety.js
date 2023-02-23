@@ -37,4 +37,4 @@ const Propriety = new Schema({
     },
 }, { timestamps: true, versionKey: false })
 
-module.exports = mongoose.model('propriety', proprietySchema, 'propriety');
+module.exports = mongoose.model('propriety', Propriety, 'propriety');

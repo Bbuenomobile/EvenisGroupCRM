@@ -21,4 +21,4 @@ const PartnerAgency = new Schema({
     }
 }, { timestamps: true, versionKey: false })
 
-module.exports = mongoose.model('partnerAgency', partnerAgencySchema, 'partnerAgency');
+module.exports = mongoose.model('partnerAgency', PartnerAgency, 'partnerAgency');
