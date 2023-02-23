@@ -135,7 +135,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
             let yyyy = datetoday.getFullYear();
             let formSignedOn = dd + "-" + mm + "-" + yyyy; 
             const newForm = new IntergeranceForm({
-                formLanguage: 'Hebrew',
+                formLanguage: formLanguage,
                 formAgent: formAgent,
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
