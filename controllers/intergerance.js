@@ -2,6 +2,32 @@ const PartnerAgency = require("../models/partner-agency");
 const Propriety = require("../models/propriety");
 const IntergeranceForm = require("../models/intergerance");
 
+const intergerancePromise = async (data) => {
+    const html = fs.readFileSync("utils/evenis-intergerance-hebrew.html" , 'utf-8');    
+    let formDocument = {
+        html: html,
+        data: data,
+        path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
+    }
+    const options = {
+        format: 'A4',
+        orientation: 'portrait',
+        border: '10mm',
+        remarkable: true,
+        childProcessOptions: { env: { OPENSSL_CONF: '/dev/null' } },
+        footer: {
+            height: "5mm",
+            contents: {
+                first: 'First Page',
+                default: '<span style="color: #444; text-align:right; ">Page {{page}}</span> of <span>{{pages}}</span>', // fallback value
+                last: 'Last Page'
+            }
+        }
+    }
+    return await pdf.create(formDocument, options)
+
+}
+
 exports.getAllAgencies = async (req, res, next) => {
     let results = await PartnerAgency.find({}).sort({ createAt: -1 }).exec();
 
@@ -19,7 +45,6 @@ exports.getAllAgencies = async (req, res, next) => {
         })
     }
 } 
-
 
 exports.getAllProperties = async (req, res, next) => {
     let results = await Propriety.find({}).sort({ createAt: -1 }).exec();
@@ -184,8 +209,8 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 formAgent: formAgent,
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
-                agency: agency, // array of objectIds
-                propriety: propriety, // array of objectIds
+                agency: agency, // object-id
+                propriety: propriety, // objectId
                 notes: notes, // not mandatory
                 signature: signature,
                 formGeneratedOn: formGeneratedOn,
@@ -208,4 +233,31 @@ exports.saveIntergeranceForm = async (req, res, next) => {
             })
     }
 
+}
+
+exports.getIntergeranceForm = async (req, res, next) => {
+    let { formId } = req.query;
+    let result = await IntergeranceForm.findById(formId).populate('agency').populate('propriety');
+    let data = {};
+    if (result) {
+        data.agency = result.agency;
+        data.propriety = result.property;
+        intergerancePromise(result).then(success => {
+            return res.status(200).json({
+                status: true,
+                filepath: "", 
+                message: 'Intergerance Generated!'
+            })
+        }).catch(err => {
+            return res.status(400).json({
+                status: false,
+                message: 'Intergerance Form Generation Failed! Please Try Again.'
+            })
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            message: 'Form Generation Failed! Please Try Again.'
+        })
+    }
 }
