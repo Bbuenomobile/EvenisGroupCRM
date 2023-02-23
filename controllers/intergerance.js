@@ -85,8 +85,8 @@ exports.saveIntergeranceForm = async (req, res, next) => {
         formAgent, // agent Id
         commissionType, 
         transactionType, // array
-        agencies, // array of objectIds
-        properties, // array of objectIds
+        agency, // array of objectIds
+        propriety, // array of objectIds
         notes, // not mandatory
         signature
     } = req.body;
@@ -110,8 +110,8 @@ exports.saveIntergeranceForm = async (req, res, next) => {
             await IntergeranceForm.findByIdAndUpdate(formId, {
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
-                agencies: agencies, // array of objectIds
-                properties: properties, // array of objectIds
+                agency: agency,
+                propriety: propriety,
                 notes: notes, // not mandatory
                 signature: signature,
                 formSignedOn: formSignedOn
@@ -139,8 +139,8 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 formAgent: formAgent,
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
-                agencies: agencies, // array of objectIds
-                properties: properties, // array of objectIds
+                agency: agency, // array of objectIds
+                propriety: propriety, // array of objectIds
                 notes: notes, // not mandatory
                 signature: signature,
                 formGeneratedOn: formGeneratedOn,

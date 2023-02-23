@@ -21,14 +21,14 @@ const IntergeranceSchema = new Schema({
         type: String,
         trim: true
     }],
-    agencies: [{
+    agency: {
         type: Schema.ObjectId,
         ref: () => PartnerAgency
-    }],
-    properties: [{
+    },
+    property: {
         type: Schema.ObjectId,
         ref: () => Propriety
-    }],
+    },
     notes: {
         type: String,
         trim: true
