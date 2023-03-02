@@ -1,13 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.dce160a1.css",
-    "main.js": "/static/js/main.86078601.js",
+    "main.css": "/static/css/main.a7a2f828.css",
+    "main.js": "/static/js/main.eb3fcf49.js",
     "static/js/787.813bc530.chunk.js": "/static/js/787.813bc530.chunk.js",
     "static/media/SideLoginImg.svg": "/static/media/SideLoginImg.891085ee507da17081eac78aad5a44ca.svg",
     "static/media/loginMobile.svg": "/static/media/loginMobile.e50ba3fc373632daff2c93d9c85afa2f.svg",
     "static/media/profile.svg": "/static/media/profile.a19e3318e23544b197b2428084246f3a.svg",
     "static/media/not.png": "/static/media/not.f8cc9d5e897830e8e67a.png",
     "static/media/logo.svg": "/static/media/logo.f068672c47bd52008666b58c097d604e.svg",
+    "static/media/enterprise.svg": "/static/media/enterprise.b9dd7c6d95bd68af56c380e35300ab70.svg",
+    "static/media/enterpriseactive.svg": "/static/media/enterpriseactive.d0aee218e00d7eae078257c8be257408.svg",
+    "static/media/establish.svg": "/static/media/establish.3b4d80a4fdfc2773e8a6056721b26c3b.svg",
     "static/media/setting.svg": "/static/media/setting.93f46f852faf74ed2813c8ad4bcd1a9d.svg",
     "static/media/group.svg": "/static/media/group.3811581e585a1810dcaba6ef8385ec2d.svg",
     "static/media/Leads.svg": "/static/media/Leads.004d5d4ccafca244c870455b6030f5de.svg",
@@ -16,16 +19,17 @@
     "static/media/delete.svg": "/static/media/delete.1eca2435d76b96ec455f48b6849e40ec.svg",
     "static/media/download.svg": "/static/media/download.6b21a85b20ad05b2ccf668ea45f7f210.svg",
     "static/media/logout.svg": "/static/media/logout.bc835c5eb754a017e405bbb9732062fb.svg",
+    "static/media/home.svg": "/static/media/home.6b48534890c836238e4f78863ccee49b.svg",
     "static/media/downloadSidebar.svg": "/static/media/downloadSidebar.ec02e6ae32c22d98a74442916efd3966.svg",
     "index.html": "/index.html",
     "static/media/menuBar.svg": "/static/media/menuBar.3612986f4890cc50edb4f4ca8febc4e6.svg",
     "static/media/closeMenu.svg": "/static/media/closeMenu.1db54632aa6104de0eee8f6cfc986c63.svg",
-    "main.dce160a1.css.map": "/static/css/main.dce160a1.css.map",
-    "main.86078601.js.map": "/static/js/main.86078601.js.map",
+    "main.a7a2f828.css.map": "/static/css/main.a7a2f828.css.map",
+    "main.eb3fcf49.js.map": "/static/js/main.eb3fcf49.js.map",
     "787.813bc530.chunk.js.map": "/static/js/787.813bc530.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.dce160a1.css",
-    "static/js/main.86078601.js"
+    "static/css/main.a7a2f828.css",
+    "static/js/main.eb3fcf49.js"
   ]
 }
