@@ -160,8 +160,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
 
     let autoId = 0;
     let totalForms = await IntergeranceForm.find({}).exec();
-    console.log(totalForms , typeof(totalForms));
-    autoId = totalForms + 1;
+    autoId = totalForms.length + 1;
 
     // implementing visitor side
     
