@@ -237,7 +237,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
 
 exports.getIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
-    let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('propriety');
+    let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     let data = {};
     if (result) {
         data.agency = result.agency;
