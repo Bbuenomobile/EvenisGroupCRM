@@ -239,8 +239,10 @@ exports.getIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     if (result) {
+        console.log(result);
         intergerancePromise(result).then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
+            console.log(success);
             return res.status(200).json({
                 status: true,
                 filepath: file, 
