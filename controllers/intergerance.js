@@ -150,7 +150,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
         commissionType, 
         transactionType, // array
         agency, // array of objectIds
-        propriety, // array of objectIds
+        property, // array of objectIds
         notes, // not mandatory
         signature
     } = req.body;
@@ -180,7 +180,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
                 agency: agency,
-                propriety: propriety,
+                property: property,
                 notes: notes, // not mandatory
                 signature: signature,
                 formSignedOn: formSignedOn
@@ -213,7 +213,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 commissionType: commissionType, 
                 transactionType: transactionType, // array
                 agency: agency, // object-id
-                propriety: propriety, // objectId
+                property: property, // objectId
                 notes: notes, // not mandatory
                 signature: signature,
                 formGeneratedOn: formGeneratedOn,
@@ -299,7 +299,7 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
 }
 
 exports.allSignedIntergerances = async (req, res, next) => {
-    let results = await IntergeranceForm.find({ signature: {$exists: true, $ne: ""} }).sort({ createdAt: -1 }).exec({})
+    let results = await IntergeranceForm.find({ signature: {$exists: true, $ne: ""} }).populate("formAgent").populate('agency').populate('property').sort({ createdAt: -1 }).exec({})
     if (results.length > 0) {
         return res.status(200).json({
             status: true,
