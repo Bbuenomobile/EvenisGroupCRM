@@ -258,16 +258,25 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     console.log(result);
-    let data = {};
     if (result) {
-        data = {
+        let data = {
             autoId: result.autoId,
             agency_name: result.agency.agency_name,
             agency_id: result.agency.agency_id,
             telephone: result.agency.telephone,
             email: result.agency.email,
+            propriety_type: result.property.type,
+            sale_price: result.property.sale_price,
+            rent_price: result.property.rent_price,
+            appartment_number: result.property.appartment_number,
+            building_number: result.property.building_number,
+            street: result.property.street,
+            city: result.property.city,
+            commissionType: result.commissionType,
+            formGeneratedOn: result.formGeneratedOn,
+            signature: result.signature,
         }
-        intergerancePromise(result).then(success => {
+        intergerancePromise(data).then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
             return res.status(200).json({
                 status: true,

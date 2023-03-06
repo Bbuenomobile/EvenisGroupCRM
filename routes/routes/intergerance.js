@@ -9,6 +9,8 @@ router.post('/add-partner-agency', IntergeranceController.addNewAgency);
 router.post('/add-propriety', IntergeranceController.addNewPropriety);
 router.post('/save-intergerance-form', IntergeranceController.saveIntergeranceForm);
 
+router.get("/download-intergerance-form", IntergeranceController.prepareIntergeranceForm);
+
 
 module.exports = {
     router: router,
