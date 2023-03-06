@@ -7,7 +7,7 @@ const intergerancePromise = async (data) => {
     let formDocument = {
         html: html,
         data: data,
-        path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
+        path: `./signed-forms/${data._id}.pdf`
     }
     const options = {
         format: 'A4',
@@ -238,14 +238,12 @@ exports.saveIntergeranceForm = async (req, res, next) => {
 exports.getIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
-    let data = {};
     if (result) {
-        data.agency = result.agency;
-        data.propriety = result.property;
         intergerancePromise(result).then(success => {
+            let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
             return res.status(200).json({
                 status: true,
-                filepath: "", 
+                filepath: file, 
                 message: 'Intergerance Generated!'
             })
         }).catch(err => {
