@@ -297,3 +297,20 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
         })
     }
 }
+
+exports.allSignedIntergerances = async (req, res, next) => {
+    let results = await IntergeranceForm.find({ signature: {$exists: true, $ne: ""} }).sort({ createdAt: -1 }).exec({})
+    if (results.length > 0) {
+        return res.status(200).json({
+            status: true,
+            total: results.length,
+            data: results,
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            total: results.length,
+            data: results,
+        })
+    }
+}

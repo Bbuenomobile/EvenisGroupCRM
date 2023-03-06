@@ -10,7 +10,7 @@ router.post('/add-propriety', IntergeranceController.addNewPropriety);
 router.post('/save-intergerance-form', IntergeranceController.saveIntergeranceForm);
 
 router.get("/download-intergerance-form", IntergeranceController.prepareIntergeranceForm);
-
+router.get('/get-all-signed-intergerances', IntergeranceController.allSignedIntergerances);
 
 module.exports = {
     router: router,
