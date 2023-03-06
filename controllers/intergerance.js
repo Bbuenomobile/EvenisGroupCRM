@@ -1,9 +1,12 @@
 const PartnerAgency = require("../models/partner-agency");
 const Propriety = require("../models/propriety");
 const IntergeranceForm = require("../models/intergerance");
+const fs = require("fs");
+const pdf = require('pdf-creator-node');
 
 const intergerancePromise = async (data) => {
     const html = fs.readFileSync("utils/evenis-intergerance-hebrew.html" , 'utf-8');    
+    console.log(data);
     let formDocument = {
         html: html,
         data: data,
@@ -239,16 +242,40 @@ exports.getIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     if (result) {
-        console.log(result);
+        return res.status(200).json({
+            status: true, 
+            data: result
+        })
+    } else {
+        return res.status(400).json({
+            status: false,
+            data: {}
+        })
+    }
+}
+
+exports.prepareIntergeranceForm = async (req, res, next) => {
+    let { formId } = req.query;
+    let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
+    console.log(result);
+    let data = {};
+    if (result) {
+        data = {
+            autoId: result.autoId,
+            agency_name: result.agency.agency_name,
+            agency_id: result.agency.agency_id,
+            telephone: result.agency.telephone,
+            email: result.agency.email,
+        }
         intergerancePromise(result).then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
-            console.log(success);
             return res.status(200).json({
                 status: true,
                 filepath: file, 
                 message: 'Intergerance Generated!'
             })
         }).catch(err => {
+            console.log(err);
             return res.status(400).json({
                 status: false,
                 message: 'Intergerance Form Generation Failed! Please Try Again.'
