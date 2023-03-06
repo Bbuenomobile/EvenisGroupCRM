@@ -206,7 +206,8 @@ exports.saveVisitForm = async (req, res, next) => {
 
 exports.getVisitorForm = async (req, res, next) => {
     const {id} = req.query;
-    let result = await VisitFormModel.findById(id);
+    let result = await VisitFormModel.findById(id).populate('formAgent').exec({});
+    console.log(result);
     if (result) {
         return res.status(200).json({
             status: true,
