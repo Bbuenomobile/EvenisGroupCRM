@@ -257,7 +257,6 @@ exports.getIntergeranceForm = async (req, res, next) => {
 exports.prepareIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
-    console.log(result);
     if (result) {
         let data = {
             autoId: result.autoId,
@@ -315,4 +314,8 @@ exports.allSignedIntergerances = async (req, res, next) => {
             data: results,
         })
     }
+}
+
+exports.filterForms = async (req, res, next) => {
+    let {} = req.body;
 }
