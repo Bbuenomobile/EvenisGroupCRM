@@ -278,6 +278,8 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
         }
         intergerancePromise(data).then(success => {
             let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
+            console.log(success);
+            console.log(file);
             return res.status(200).json({
                 status: true,
                 filepath: file, 
