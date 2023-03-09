@@ -405,7 +405,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                     autoId: autoId,
                 })
                 newForm.save().then(async (success) => {
-                    let form = await IntergeranceForm.findById(success._id);
+                    let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
                     let data = {
                         autoId: form.autoId,
                         agency_name: form.agency.agency_name,
@@ -459,7 +459,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                     autoId: autoId,
                 })
                 newForm.save().then(async (success) => {
-                    let form = await IntergeranceForm.findById(success._id);
+                    let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
                     let data = {
                         autoId: form.autoId,
                         agency_name: form.agency.agency_name,
