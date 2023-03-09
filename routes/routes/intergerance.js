@@ -12,7 +12,7 @@ router.post('/save-intergerance-form', IntergeranceController.saveIntergeranceFo
 router.get("/download-intergerance-form", IntergeranceController.prepareIntergeranceForm);
 router.get('/get-all-signed-intergerances', IntergeranceController.allSignedIntergerances);
 
-router.post('/filter-forms', IntergeranceController.filterForms);
+router.post('/filter-intergerance-forms', IntergeranceController.filterForms);
 
 module.exports = {
     router: router,
