@@ -436,11 +436,6 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                             message: 'Document Update Failed!'
                         })
                     })
-                    return res.status(200).json({
-                        status: true,
-                        data: success._id,
-                        message: 'Form Saved Successfully!'
-                    })
                 }).catch(err => {
                     console.log(err);
                     return res.status(400).json({
@@ -493,11 +488,6 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                             status: false,
                             message: 'Document Update Failed!'
                         })
-                    })
-                    return res.status(200).json({
-                        status: true,
-                        data: success._id,
-                        message: 'Form Saved Successfully!'
                     })
                 }).catch(err => {
                     console.log(err);
