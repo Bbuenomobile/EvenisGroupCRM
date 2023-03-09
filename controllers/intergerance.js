@@ -404,23 +404,24 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                     formSignedOn: formSignedOn,
                     autoId: autoId,
                 })
-                newForm.save().then(success => {
+                newForm.save().then(async (success) => {
+                    let form = await IntergeranceForm.findById(success._id);
                     let data = {
-                        autoId: success.autoId,
-                        agency_name: success.agency.agency_name,
-                        agency_id: success.agency.agency_id,
-                        telephone: success.agency.telephone,
-                        email: success.agency.email,
-                        propriety_type: success.property.type,
-                        sale_price: success.property.sale_price,
-                        rent_price: success.property.rent_price,
-                        appartment_number: success.property.appartment_number,
-                        building_number: success.property.building_number,
-                        street: success.property.street,
-                        city: success.property.city,
-                        commissionType: success.commissionType,
-                        formGeneratedOn: success.formGeneratedOn,
-                        signature: success.signature,
+                        autoId: form.autoId,
+                        agency_name: form.agency.agency_name,
+                        agency_id: form.agency.agency_id,
+                        telephone: form.agency.telephone,
+                        email: form.agency.email,
+                        propriety_type: form.property.type,
+                        sale_price: form.property.sale_price,
+                        rent_price: form.property.rent_price,
+                        appartment_number: form.property.appartment_number,
+                        building_number: form.property.building_number,
+                        street: form.property.street,
+                        city: form.property.city,
+                        commissionType: form.commissionType,
+                        formGeneratedOn: form.formGeneratedOn,
+                        signature: form.signature,
                     }
                     intergerancePromise(data).then(succ => {
                         let file = succ.filename.split("\\")[succ.filename.split("\\").length - 1]; 
@@ -457,22 +458,23 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                     formSignedOn: "",
                     autoId: autoId,
                 })
-                newForm.save().then(success => {
+                newForm.save().then(async (success) => {
+                    let form = await IntergeranceForm.findById(success._id);
                     let data = {
-                        autoId: success.autoId,
-                        agency_name: success.agency.agency_name,
-                        agency_id: success.agency.agency_id,
-                        telephone: success.agency.telephone,
-                        email: success.agency.email,
-                        propriety_type: success.property.type,
-                        sale_price: success.property.sale_price,
-                        rent_price: success.property.rent_price,
-                        appartment_number: success.property.appartment_number,
-                        building_number: success.property.building_number,
-                        street: success.property.street,
-                        city: success.property.city,
-                        commissionType: success.commissionType,
-                        formGeneratedOn: success.formGeneratedOn,
+                        autoId: form.autoId,
+                        agency_name: form.agency.agency_name,
+                        agency_id: form.agency.agency_id,
+                        telephone: form.agency.telephone,
+                        email: form.agency.email,
+                        propriety_type: form.property.type,
+                        sale_price: form.property.sale_price,
+                        rent_price: form.property.rent_price,
+                        appartment_number: form.property.appartment_number,
+                        building_number: form.property.building_number,
+                        street: form.property.street,
+                        city: form.property.city,
+                        commissionType: form.commissionType,
+                        formGeneratedOn: form.formGeneratedOn,
                         signature: "",
                     }
                     intergerancePromise(data).then(succ => {
