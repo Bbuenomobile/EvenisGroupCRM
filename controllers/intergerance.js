@@ -318,8 +318,14 @@ exports.allSignedIntergerances = async (req, res, next) => {
 
 exports.filterForms = async (req, res, next) => {
     let filterQuery = req.body; // { agency_name: "" , email: "" }
-    let results = await IntergeranceForm.find(filterQuery).populate('agency').populate('property').sort({ formSignedOn: -1 }).exec({});
-    console.log(results)
+
+    if (filterQuery.email != undefined) {
+        let results = await IntergeranceForm.find({ agency: filterQuery.agency }).populate({ path: 'agency', match: { email: filterQuery.email } }).populate('property').sort({ formSignedOn: -1 }).exec({});
+    } else {
+        let results = await IntergeranceForm.find(filterQuery).populate('agency').populate('property').sort({ formSignedOn: -1 }).exec({});
+    }
+
+
     if (results.length > 0) {
         return res.status(200).json({
             status: true,
