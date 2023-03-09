@@ -320,8 +320,10 @@ exports.filterForms = async (req, res, next) => {
     let filterQuery = req.body; // { agency_name: "" , email: "" }
     let results;
     if (filterQuery.email != undefined) {
-        console.log(filterQuery.email);
-        results = await IntergeranceForm.find({ agency: { $ne: null } }).populate({ path: 'agency', match: { email: filterQuery.email } }).populate('property').sort({ formSignedOn: -1 }).exec({});
+        results = await IntergeranceForm.find().populate({ path: 'agency', match: { email: filterQuery.email } }).populate('property').sort({ formSignedOn: -1 }).exec({});
+        results = results.filter(result => {
+            return result.agency != null;
+        })
     } else {
         console.log(filterQuery);
         results = await IntergeranceForm.find(filterQuery).populate('agency').populate('property').sort({ formSignedOn: -1 }).exec({});
