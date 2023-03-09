@@ -166,7 +166,6 @@ exports.saveIntergeranceForm = async (req, res, next) => {
     autoId = totalForms.length + 1;
 
     // implementing visitor side
-    
     let result = await IntergeranceForm.findById(formId);
     if (result) {
         if (signature != "") {
@@ -198,9 +197,27 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 })
             })
         } else { 
-            
+            await IntergeranceForm.findByIdAndUpdate(formId, {
+                commissionType: commissionType, 
+                transactionType: transactionType, // array
+                agency: agency,
+                property: property,
+                notes: notes, // not mandatory
+            }).then(success => {
+                return res.status(200).json({
+                    status: true,
+                    data: success._id,
+                    message: 'Form Updated Successfully!',
+                })
+            }).catch(err => {
+                console.log(err);
+                return res.status(400).json({
+                    status: false,
+                    message: 'Form Update Failed!'
+                })
+            })
         }
-        // the agency employee side - its a new form
+    // the agency employee side - its a new form
     } else {
             let datetoday = new Date();
             let dd = String(datetoday.getDate()).padStart(2, '0');
@@ -236,6 +253,261 @@ exports.saveIntergeranceForm = async (req, res, next) => {
             })
     }
 
+}
+
+exports.submitIntergeranceForm = async (req, res, next) => {
+    let {
+        formId, // blank string for first time, otherwise ID
+        formLanguage, // Hebrew always
+        formAgent, // agent Id
+        commissionType, 
+        transactionType, // array
+        agency, // array of objectIds
+        property, // array of objectIds
+        notes, // not mandatory
+        signature
+    } = req.body;
+
+    let datetoday = new Date();
+    let dd = String(datetoday.getDate()).padStart(2, '0');
+    let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let yyyy = datetoday.getFullYear();
+    let formGeneratedOn = dd + "-" + mm + "-" + yyyy;
+
+    let autoId = 0;
+    let totalForms = await IntergeranceForm.find({}).exec();
+    autoId = totalForms.length + 1;
+
+    // implementing visitor side
+    let result = await IntergeranceForm.findById(formId);
+    if (result) {
+        if (signature != "") {
+            let datetoday = new Date();
+            let dd = String(datetoday.getDate()).padStart(2, '0');
+            let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
+            let yyyy = datetoday.getFullYear();
+            let formSignedOn = dd + "-" + mm + "-" + yyyy;  
+
+            await IntergeranceForm.findByIdAndUpdate(formId, {
+                commissionType: commissionType, 
+                transactionType: transactionType, // array
+                agency: agency,
+                property: property,
+                notes: notes, // not mandatory
+                signature: signature,
+                formSignedOn: formSignedOn
+            }).then(success => {
+                let data = {
+                    autoId: success.autoId,
+                    agency_name: success.agency.agency_name,
+                    agency_id: success.agency.agency_id,
+                    telephone: success.agency.telephone,
+                    email: success.agency.email,
+                    propriety_type: success.property.type,
+                    sale_price: success.property.sale_price,
+                    rent_price: success.property.rent_price,
+                    appartment_number: success.property.appartment_number,
+                    building_number: success.property.building_number,
+                    street: success.property.street,
+                    city: success.property.city,
+                    commissionType: success.commissionType,
+                    formGeneratedOn: success.formGeneratedOn,
+                    signature: success.signature,
+                }
+                intergerancePromise(data).then(succ => {
+                    let file = succ.filename.split("\\")[succ.filename.split("\\").length - 1]; 
+                    return res.status(200).json({
+                        status: true,
+                        filepath: file,
+                        message: 'Document Submit & Fetched Successfully!',
+                    })
+                }).catch(err => {
+                    console.log(err)
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Document Submit Failed!'
+                    })
+                })
+            }).catch(err => {
+                console.log(err);
+                return res.status(400).json({
+                    status: false,
+                    message: 'Form Update Failed!'
+                })
+            })
+        } else { 
+            await IntergeranceForm.findByIdAndUpdate(formId, {
+                commissionType: commissionType, 
+                transactionType: transactionType, // array
+                agency: agency,
+                property: property,
+                notes: notes, // not mandatory
+            }).then(success => {
+                let data = {
+                    autoId: success.autoId,
+                    agency_name: success.agency.agency_name,
+                    agency_id: success.agency.agency_id,
+                    telephone: success.agency.telephone,
+                    email: success.agency.email,
+                    propriety_type: success.property.type,
+                    sale_price: success.property.sale_price,
+                    rent_price: success.property.rent_price,
+                    appartment_number: success.property.appartment_number,
+                    building_number: success.property.building_number,
+                    street: success.property.street,
+                    city: success.property.city,
+                    commissionType: success.commissionType,
+                    formGeneratedOn: success.formGeneratedOn,
+                    signature: "",
+                }
+                intergerancePromise(data).then(succ => {
+                    let file = succ.filename.split("\\")[succ.filename.split("\\").length - 1]; 
+                    return res.status(200).json({
+                        status: true,
+                        filepath: file,
+                        message: 'Document Updated & Fetched Successfully!',
+                    })
+                }).catch(err => {
+                    console.log(err)
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Document Update Failed!'
+                    })
+                })
+            }).catch(err => {
+                console.log(err);
+                return res.status(400).json({
+                    status: false,
+                    message: 'Form Update Failed!'
+                })
+            })
+        }
+    // the agency employee side - its a new form
+    } else {
+            if (signature != "") {
+                let datetoday = new Date();
+                let dd = String(datetoday.getDate()).padStart(2, '0');
+                let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
+                let yyyy = datetoday.getFullYear();
+                let formSignedOn = dd + "-" + mm + "-" + yyyy;
+
+                const newForm = new IntergeranceForm({
+                    formLanguage: formLanguage,
+                    formAgent: formAgent,
+                    commissionType: commissionType, 
+                    transactionType: transactionType, // array
+                    agency: agency, // object-id
+                    property: property, // objectId
+                    notes: notes, // not mandatory
+                    signature: signature,
+                    formGeneratedOn: formGeneratedOn,
+                    formSignedOn: formSignedOn,
+                    autoId: autoId,
+                })
+                newForm.save().then(success => {
+                    let data = {
+                        autoId: success.autoId,
+                        agency_name: success.agency.agency_name,
+                        agency_id: success.agency.agency_id,
+                        telephone: success.agency.telephone,
+                        email: success.agency.email,
+                        propriety_type: success.property.type,
+                        sale_price: success.property.sale_price,
+                        rent_price: success.property.rent_price,
+                        appartment_number: success.property.appartment_number,
+                        building_number: success.property.building_number,
+                        street: success.property.street,
+                        city: success.property.city,
+                        commissionType: success.commissionType,
+                        formGeneratedOn: success.formGeneratedOn,
+                        signature: success.signature,
+                    }
+                    intergerancePromise(data).then(succ => {
+                        let file = succ.filename.split("\\")[succ.filename.split("\\").length - 1]; 
+                        return res.status(200).json({
+                            status: true,
+                            filepath: file,
+                            message: 'Document Updated & Fetched Successfully!',
+                        })
+                    }).catch(err => {
+                        console.log(err)
+                        return res.status(400).json({
+                            status: false,
+                            message: 'Document Update Failed!'
+                        })
+                    })
+                    return res.status(200).json({
+                        status: true,
+                        data: success._id,
+                        message: 'Form Saved Successfully!'
+                    })
+                }).catch(err => {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Form Save Failed! Please Try Again.'
+                    })
+                })
+            } else {
+                const newForm = new IntergeranceForm({
+                    formLanguage: formLanguage,
+                    formAgent: formAgent,
+                    commissionType: commissionType, 
+                    transactionType: transactionType, // array
+                    agency: agency, // object-id
+                    property: property, // objectId
+                    notes: notes, // not mandatory
+                    signature: "",
+                    formGeneratedOn: formGeneratedOn,
+                    formSignedOn: "",
+                    autoId: autoId,
+                })
+                newForm.save().then(success => {
+                    let data = {
+                        autoId: success.autoId,
+                        agency_name: success.agency.agency_name,
+                        agency_id: success.agency.agency_id,
+                        telephone: success.agency.telephone,
+                        email: success.agency.email,
+                        propriety_type: success.property.type,
+                        sale_price: success.property.sale_price,
+                        rent_price: success.property.rent_price,
+                        appartment_number: success.property.appartment_number,
+                        building_number: success.property.building_number,
+                        street: success.property.street,
+                        city: success.property.city,
+                        commissionType: success.commissionType,
+                        formGeneratedOn: success.formGeneratedOn,
+                        signature: "",
+                    }
+                    intergerancePromise(data).then(succ => {
+                        let file = succ.filename.split("\\")[succ.filename.split("\\").length - 1]; 
+                        return res.status(200).json({
+                            status: true,
+                            filepath: file,
+                            message: 'Document Updated & Fetched Successfully!',
+                        })
+                    }).catch(err => {
+                        console.log(err)
+                        return res.status(400).json({
+                            status: false,
+                            message: 'Document Update Failed!'
+                        })
+                    })
+                    return res.status(200).json({
+                        status: true,
+                        data: success._id,
+                        message: 'Form Saved Successfully!'
+                    })
+                }).catch(err => {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Form Save Failed! Please Try Again.'
+                    })
+                })
+            }
+    }
 }
 
 exports.getIntergeranceForm = async (req, res, next) => {
