@@ -318,11 +318,11 @@ exports.allSignedIntergerances = async (req, res, next) => {
 
 exports.filterForms = async (req, res, next) => {
     let filterQuery = req.body; // { agency_name: "" , email: "" }
-
+    let results;
     if (filterQuery.email != undefined) {
-        let results = await IntergeranceForm.find({ agency: filterQuery.agency }).populate({ path: 'agency', match: { email: filterQuery.email } }).populate('property').sort({ formSignedOn: -1 }).exec({});
+        results = await IntergeranceForm.find().populate({ path: 'agency', match: { email: filterQuery.email } }).populate('property').sort({ formSignedOn: -1 }).exec({});
     } else {
-        let results = await IntergeranceForm.find(filterQuery).populate('agency').populate('property').sort({ formSignedOn: -1 }).exec({});
+        results = await IntergeranceForm.find(filterQuery).populate('agency').populate('property').sort({ formSignedOn: -1 }).exec({});
     }
 
 
