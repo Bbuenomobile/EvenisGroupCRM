@@ -233,7 +233,7 @@ exports.saveIntergeranceForm = async (req, res, next) => {
                 property: property, // objectId
                 notes: notes, // not mandatory
                 signature: signature,
-                formGeneratedOn: formGeneratedOn,
+                formGeneratedOn: signature != "" ? formGeneratedOn : "",
                 formSignedOn: formSignedOn,
                 autoId: autoId,
             })
