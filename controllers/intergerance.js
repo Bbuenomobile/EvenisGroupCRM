@@ -327,7 +327,6 @@ exports.filterForms = async (req, res, next) => {
             data: results,
         })
     } else {
-        console.log(err);
         return res.status(400).json({
             status: false,
             total: results.length,
