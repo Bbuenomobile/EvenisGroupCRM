@@ -319,6 +319,7 @@ exports.allSignedIntergerances = async (req, res, next) => {
 exports.filterForms = async (req, res, next) => {
     let filterQuery = req.body; // { agency_name: "" , email: "" }
     let results = await PartnerAgency.find(filterQuery).exec({});
+    console.log(results)
     if (results.length > 0) {
         return res.status(200).json({
             status: true,
@@ -326,6 +327,7 @@ exports.filterForms = async (req, res, next) => {
             data: results,
         })
     } else {
+        console.log(err);
         return res.status(400).json({
             status: false,
             total: results.length,
