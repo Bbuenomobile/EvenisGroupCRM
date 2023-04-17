@@ -1,6 +1,58 @@
 const VisitFormModel = require("../models/visit-form");
 const fs = require("fs");
 const pdf = require('pdf-creator-node');
+const nodemailer = require("nodemailer");
+
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({ 
+    cloud_name: 'dj06tvfjt', 
+    api_key: '122145526342654', 
+    api_secret: 'PgTTOnNXzbw2mcSVgCob59JBi6A' 
+});
+
+const mailList = [ "nikhilsunil90s@gmail.com"];
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    port: 465,               // true for 465, false for other ports
+    host: "smtp.gmail.com",
+    auth: {
+        user: 'eveniscrm@gmail.com',
+        pass: 'rhqbclteayovkpdz',
+    },
+    secure: true,
+    priority: "high",
+
+});
+
+async function uploadToCloudinary(locaFilePath) {
+    // locaFilePath :
+    // path of image which was just uploaded to "uploads" folder
+  
+    var mainFolderName = "signed-forms"
+    // filePathOnCloudinary :
+    // path of image we want when it is uploded to cloudinary
+    var filePathOnCloudinary = mainFolderName + "/" + locaFilePath
+    // console.log(filePathOnCloudinary);
+    return cloudinary.uploader.upload(filePathOnCloudinary, {"public_id": locaFilePath, "resource_type": "auto"})
+    .then((result) => {
+      // Image has been successfully uploaded on cloudinary
+      // So we dont need local image file anymore
+      // Remove file from local uploads folder 
+    //   fs.unlinkSync(filePathOnCloudinary);
+    //   console.log(result);
+      return {
+        message: "Success",
+        url:result.url,
+        public_id: result.public_id,
+      };
+    }).catch((error) => {
+        console.log(error);
+      // Remove file from local uploads folder 
+    //   fs.unlinkSync(filePathOnCloudinary)
+      return {message: "Fail",};
+    });
+}
 
 const formPromise = async (data) => {
     let html = "" ;
@@ -12,13 +64,11 @@ const formPromise = async (data) => {
     } else if (data.formLanguage == "Hebrew") {
         html = fs.readFileSync("utils/evenis-hebrew.html", 'utf-8');
     }
-    console.log(html)
     let formDocument = {
         html: html,
         data: data,
         path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
     }
-    console.log(formDocument)
     const options = {
         format: 'A4',
         orientation: 'portrait',
@@ -63,144 +113,393 @@ exports.saveVisitForm = async (req, res, next) => {
         formLanguage,
         formAgent
     } = req.body
-    console.log(req.body);
-    let result = await VisitFormModel.findById(visitFormId);
-    console.log(result);
-    if (result) {
-        if (visitorSignature !== '') {
+
+    try {
+        let result = await VisitFormModel.findById(visitFormId);
+        if (result) {
+            if (visitorSignature !== '') {
+                let datetoday = new Date();
+                let dd = String(datetoday.getDate()).padStart(2, '0');
+                let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
+                let yyyy = datetoday.getFullYear();
+                let form_signed_on = dd + "-" + mm + "-" + yyyy;
+                await VisitFormModel.findByIdAndUpdate(visitFormId, {
+                    montantCommission: montantCommission,
+                    firstName: firstName,
+                    lastName: lastName,
+                    passportNumber: passportNumber,
+                    streetAddress1: streetAddress1,
+                    streetAddress2: streetAddress2,
+                    city: city,
+                    province: province,
+                    zip: zip,
+                    country: country,
+                    phoneNumber: phoneNumber,
+                    visitorEmail: visitorEmail,
+                    agentEmail: agentEmail,
+                    referenceAppartment1: referenceAppartment1,
+                    detailsReferenceAppartment1: detailsReferenceAppartment1,
+                    referenceAppartment2: referenceAppartment2,
+                    detailsReferenceAppartment2: detailsReferenceAppartment2,
+                    referenceAppartment3: referenceAppartment3,
+                    detailsReferenceAppartment3: detailsReferenceAppartment3,
+                    visitorSignature: visitorSignature,
+                    formSignedOn: form_signed_on,
+                }).then(updateSuccess => {
+                    console.log("UpdateSuccess - " , updateSuccess);
+                    if (agentEmail !== "") {
+                        let summary = "";
+                        if (updateSuccess.formLanguage == 'Hebrew') {
+                            if (updateSuccess.montantCommission === 'location') {
+                                summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
+                            } else if (updateSuccess.montantCommission === 'achat') {
+                                summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
+                            } else {
+                                summary = updateSuccess.montantCommission;
+                            }    
+                        } else if ( updateSuccess.formLanguage == "French") {
+                            if (updateSuccess.montantCommission === 'location') {
+                                summary = "b) Location: montant d'un mois de loyer H. T"
+                            } else if (updateSuccess.montantCommission === 'achat') {
+                                summary = 'a) Achat: 2% H. T du montant total de la transaction'
+                            } else {
+                                summary = updateSuccess.montantCommission;
+                            }
+                        } else if (updateSuccess.formLanguage == "English") {
+                            if (updateSuccess.montantCommission === 'location') {
+                                summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
+                            } else if (updateSuccess.montantCommission === 'achat') {
+                                summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
+                            } else {
+                                summary = updateSuccess.montantCommission;
+                            }
+                        }
+                        let data = {
+                            date: updateSuccess.formSignedOn == undefined ? '' : updateSuccess.formSignedOn,
+                            name: updateSuccess.firstName + " " + updateSuccess.lastName,
+                            summary: summary == undefined ? '' : summary, 
+                            passportNumber: updateSuccess.passportNumber == undefined ? '' : updateSuccess.passportNumber,
+                            address: updateSuccess.streetAddress1 == undefined ? '' : updateSuccess.streetAddress1 + " " + updateSuccess.streetAddress2 == undefined ? '' : updateSuccess.streetAddress2,
+                            phoneNumber: updateSuccess.phoneNumber == undefined ? '' : updateSuccess.phoneNumber,
+                            email: updateSuccess.visitorEmail == undefined ? '' : updateSuccess.visitorEmail,
+                            propertyAddress1: updateSuccess.referenceAppartment1 == undefined ? '' : updateSuccess.referenceAppartment1,
+                            propertyDetails1: updateSuccess.detailsReferenceAppartment1 == undefined ? '' : updateSuccess.detailsReferenceAppartment1,
+                            propertyAddress2: updateSuccess.referenceAppartment2 == undefined ? '' : updateSuccess.referenceAppartment2,
+                            propertyDetails2: updateSuccess.detailsReferenceAppartment2 == undefined ? '' : updateSuccess.detailsReferenceAppartment2,
+                            propertyAddress3: updateSuccess.referenceAppartment3 == undefined ? '' : updateSuccess.referenceAppartment3,
+                            propertyDetails3: updateSuccess.detailsReferenceAppartment3 == undefined ? '' : updateSuccess.detailsReferenceAppartment3,
+                            signature: updateSuccess.visitorSignature,
+                            firstName: updateSuccess.firstName,
+                            id: updateSuccess._id,
+                            formLanguage: updateSuccess.formLanguage,
+                        }
+                        formPromise(data)
+                        .then(async (success) => {
+                            let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
+                            let uploadResult = await uploadToCloudinary(file);
+                            const mailData = {
+                                from: 'eveniscrm@gmail.com',  // sender address
+                                to: [agentEmail],   // list of receivers
+                                subject: `Copy du bon de visite signé ${success.firstName}`,
+                                text: 'That was easy!',
+                                html: `Hello, <br/> Please see in attachement of this email the copy of the PDF signed.`,
+                                attachments: [{
+                                    filename: success.firstName+"-"+success._id + ".pdf",
+                                    path: uploadResult.url,
+                                }]
+                            };
+                            transporter.sendMail(mailData, (err, info) => {
+                                if (err) {
+                                    console.log(err)
+                                } else {
+                                    //////console.loge.log(info)
+                                    return res.status(200).json({
+                                        status: true,
+                                        message: 'Form Generated and Sent Successfully!',
+                                    })
+                                }
+                            })
+                        }).catch(err => {
+                            console.log(err)
+                            return res.status(400).json({
+                                status: false,
+                            })
+                        })
+                    } else {
+                        return res.status(200).json({
+                            status: true,
+                            message: 'Form Updated Successfully!',
+                            formId: success._id
+                        })
+                    }
+                    
+                }).catch(err => {
+                    console.log(err)
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Form Update Failed!'
+                    })
+                })
+            }
+            
+        } else {
+
             let datetoday = new Date();
             let dd = String(datetoday.getDate()).padStart(2, '0');
             let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
             let yyyy = datetoday.getFullYear();
-            let form_signed_on = dd + "-" + mm + "-" + yyyy;
-            console.log(form_signed_on);
-            await VisitFormModel.findByIdAndUpdate(visitFormId, {
-                montantCommission: montantCommission,
-                firstName: firstName,
-                lastName: lastName,
-                passportNumber: passportNumber,
-                streetAddress1: streetAddress1,
-                streetAddress2: streetAddress2,
-                city: city,
-                province: province,
-                zip: zip,
-                country: country,
-                phoneNumber: phoneNumber,
-                visitorEmail: visitorEmail,
-                agentEmail: agentEmail,
-                referenceAppartment1: referenceAppartment1,
-                detailsReferenceAppartment1: detailsReferenceAppartment1,
-                referenceAppartment2: referenceAppartment2,
-                detailsReferenceAppartment2: detailsReferenceAppartment2,
-                referenceAppartment3: referenceAppartment3,
-                detailsReferenceAppartment3: detailsReferenceAppartment3,
-                visitorSignature: visitorSignature,
-                formSignedOn: form_signed_on,
-            }).then(updateSuccess => {
-                return res.status(200).json({
-                    status: true,
-                    message: 'Form Updated Successfully!',
-                    formId: updateSuccess._id
+            let form_generated_on = dd + "-" + mm + "-" + yyyy;
+
+            if (visitorSignature !== "") {
+                let visitForm = new VisitFormModel({
+                    montantCommission: montantCommission,
+                    firstName: firstName,
+                    lastName: lastName,
+                    passportNumber: passportNumber,
+                    streetAddress1: streetAddress1,
+                    streetAddress2: streetAddress2,
+                    city: city,
+                    province: province,
+                    zip: zip,
+                    country: country,
+                    phoneNumber: phoneNumber,
+                    visitorEmail: visitorEmail,
+                    agentEmail: agentEmail,
+                    referenceAppartment1: referenceAppartment1,
+                    detailsReferenceAppartment1: detailsReferenceAppartment1,
+                    referenceAppartment2: referenceAppartment2,
+                    detailsReferenceAppartment2: detailsReferenceAppartment2,
+                    referenceAppartment3: referenceAppartment3,
+                    detailsReferenceAppartment3: detailsReferenceAppartment3,
+                    visitorSignature: visitorSignature,
+                    formGeneratedOn: form_generated_on,
+                    formLanguage: formLanguage,
+                    formAgent: formAgent,
+                    formSignedOn: form_generated_on,
                 })
-            }).catch(err => {
-                console.log(err)
-                return res.status(400).json({
-                    status: false,
-                    message: 'Form Update Failed!'
+
+                visitForm.save().then(success => {
+                    if (agentEmail !== "") {
+                        let summary = "";
+                        if (success.formLanguage == 'Hebrew') {
+                            if (success.montantCommission === 'location') {
+                                summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
+                            } else {
+                                summary = success.montantCommission;
+                            }    
+                        } else if ( success.formLanguage == "French") {
+                            if (success.montantCommission === 'location') {
+                                summary = "b) Location: montant d'un mois de loyer H. T"
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) Achat: 2% H. T du montant total de la transaction'
+                            } else {
+                                summary = success.montantCommission;
+                            }
+                        } else if (success.formLanguage == "English") {
+                            if (success.montantCommission === 'location') {
+                                summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
+                            } else {
+                                summary = success.montantCommission;
+                            }
+                        }
+                        let data = {
+                            date: success.formSignedOn == undefined ? '' : success.formSignedOn,
+                            name: success.firstName + " " + success.lastName,
+                            summary: summary == undefined ? '' : summary, 
+                            passportNumber: success.passportNumber == undefined ? '' : success.passportNumber,
+                            address: success.streetAddress1 == undefined ? '' : success.streetAddress1 + " " + success.streetAddress2 == undefined ? '' : success.streetAddress2,
+                            phoneNumber: success.phoneNumber == undefined ? '' : success.phoneNumber,
+                            email: success.visitorEmail == undefined ? '' : success.visitorEmail,
+                            propertyAddress1: success.referenceAppartment1 == undefined ? '' : success.referenceAppartment1,
+                            propertyDetails1: success.detailsReferenceAppartment1 == undefined ? '' : success.detailsReferenceAppartment1,
+                            propertyAddress2: success.referenceAppartment2 == undefined ? '' : success.referenceAppartment2,
+                            propertyDetails2: success.detailsReferenceAppartment2 == undefined ? '' : success.detailsReferenceAppartment2,
+                            propertyAddress3: success.referenceAppartment3 == undefined ? '' : success.referenceAppartment3,
+                            propertyDetails3: success.detailsReferenceAppartment3 == undefined ? '' : success.detailsReferenceAppartment3,
+                            signature: success.visitorSignature,
+                            firstName: success.firstName,
+                            id: success._id,
+                            formLanguage: success.formLanguage,
+                        }
+                        formPromise(data)
+                        .then(async (promiseSuccess) => {
+                            let file = promiseSuccess.filename.split("\\")[promiseSuccess.filename.split("\\").length - 1];
+                            let uploadResult = await uploadToCloudinary(file);
+                            const mailData = {
+                                from: 'eveniscrm@gmail.com',  // sender address
+                                to: [agentEmail],   // list of receivers
+                                subject: `Copy du bon de visite signé ${success.firstName}`,
+                                text: 'That was easy!',
+                                html: `Hello, <br/> Please see in attachement of this email the copy of the PDF signed.`,
+                                attachments: [{
+                                    filename: success.firstName+"-"+success._id + ".pdf",
+                                    path: uploadResult.url,
+                                }]
+                            };
+                            transporter.sendMail(mailData, (err, info) => {
+                                if (err) {
+                                    console.log(err)
+                                } else {
+                                    //////console.loge.log(info)
+                                    return res.status(200).json({
+                                        status: true,
+                                        message: 'Form Generated and Sent Successfully!',
+                                    })
+                                }
+                            })
+                        }).catch(err => {
+                            console.log(err)
+                            return res.status(400).json({
+                                status: false,
+                            })
+                        })
+                    } else {
+                        return res.status(200).json({
+                            status: true,
+                            message: 'Form Created Successfully!',
+                            formId: success._id
+                        })
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Form Create Failed!'
+                    })
                 })
-            })
+            } else {
+                let visitForm = new VisitFormModel({
+                    montantCommission: montantCommission,
+                    firstName: firstName,
+                    lastName: lastName,
+                    passportNumber: passportNumber,
+                    streetAddress1: streetAddress1,
+                    streetAddress2: streetAddress2,
+                    city: city,
+                    province: province,
+                    zip: zip,
+                    country: country,
+                    phoneNumber: phoneNumber,
+                    visitorEmail: visitorEmail,
+                    agentEmail: agentEmail,
+                    referenceAppartment1: referenceAppartment1,
+                    detailsReferenceAppartment1: detailsReferenceAppartment1,
+                    referenceAppartment2: referenceAppartment2,
+                    detailsReferenceAppartment2: detailsReferenceAppartment2,
+                    referenceAppartment3: referenceAppartment3,
+                    detailsReferenceAppartment3: detailsReferenceAppartment3,
+                    visitorSignature: visitorSignature,
+                    formGeneratedOn: form_generated_on,
+                    formLanguage: formLanguage,
+                    formAgent: formAgent,
+                })
+
+                visitForm.save().then(success => {
+                    if (agentEmail !== "") {
+                        let summary = "";
+                        if (success.formLanguage == 'Hebrew') {
+                            if (success.montantCommission === 'location') {
+                                summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
+                            } else {
+                                summary = success.montantCommission;
+                            }    
+                        } else if ( success.formLanguage == "French") {
+                            if (success.montantCommission === 'location') {
+                                summary = "b) Location: montant d'un mois de loyer H. T"
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) Achat: 2% H. T du montant total de la transaction'
+                            } else {
+                                summary = success.montantCommission;
+                            }
+                        } else if (success.formLanguage == "English") {
+                            if (success.montantCommission === 'location') {
+                                summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
+                            } else if (success.montantCommission === 'achat') {
+                                summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
+                            } else {
+                                summary = success.montantCommission;
+                            }
+                        }
+                        let data = {
+                            date: success.formSignedOn == undefined ? '' : success.formSignedOn,
+                            name: success.firstName + " " + success.lastName,
+                            summary: summary == undefined ? '' : summary, 
+                            passportNumber: success.passportNumber == undefined ? '' : success.passportNumber,
+                            address: success.streetAddress1 == undefined ? '' : success.streetAddress1 + " " + success.streetAddress2 == undefined ? '' : success.streetAddress2,
+                            phoneNumber: success.phoneNumber == undefined ? '' : success.phoneNumber,
+                            email: success.visitorEmail == undefined ? '' : success.visitorEmail,
+                            propertyAddress1: success.referenceAppartment1 == undefined ? '' : success.referenceAppartment1,
+                            propertyDetails1: success.detailsReferenceAppartment1 == undefined ? '' : success.detailsReferenceAppartment1,
+                            propertyAddress2: success.referenceAppartment2 == undefined ? '' : success.referenceAppartment2,
+                            propertyDetails2: success.detailsReferenceAppartment2 == undefined ? '' : success.detailsReferenceAppartment2,
+                            propertyAddress3: success.referenceAppartment3 == undefined ? '' : success.referenceAppartment3,
+                            propertyDetails3: success.detailsReferenceAppartment3 == undefined ? '' : success.detailsReferenceAppartment3,
+                            signature: success.visitorSignature,
+                            firstName: success.firstName,
+                            id: success._id,
+                            formLanguage: success.formLanguage,
+                        }
+                        formPromise(data)
+                        .then(async (promiseSuccess) => {
+                            let file = promiseSuccess.filename.split("\\")[promiseSuccess.filename.split("\\").length - 1];
+                            let uploadResult = await uploadToCloudinary(file);
+                            console.log(uploadResult);
+                            const mailData = {
+                                from: 'eveniscrm@gmail.com',  // sender address
+                                to: [agentEmail],   // list of receivers
+                                subject: `Copy du bon de visite signé ${success.firstName}`,
+                                text: 'That was easy!',
+                                html: `Hello, <br/> Please see in attachement of this email the copy of the PDF signed.`,
+                                attachments: [{
+                                    filename: success.firstName+"-"+success._id + ".pdf",
+                                    path: uploadResult.url,
+                                }]
+                            };
+                            transporter.sendMail(mailData, (err, info) => {
+                                if (err) {
+                                    console.log(err)
+                                } else {
+                                    //////console.loge.log(info)
+                                    return res.status(200).json({
+                                        status: true,
+                                        message: 'Form Generated and Sent Successfully!',
+                                    })
+                                }
+                            })
+                        }).catch(err => {
+                            console.log(err)
+                            return res.status(400).json({
+                                status: false,
+                            })
+                        })
+                    } else {
+                        return res.status(200).json({
+                            status: true,
+                            message: 'Form Created Successfully!',
+                            formId: success._id
+                        })
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Form Create Failed!'
+                    })
+                })
+            }
         }
-        
-    } else {
-
-        let datetoday = new Date();
-        let dd = String(datetoday.getDate()).padStart(2, '0');
-        let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
-        let yyyy = datetoday.getFullYear();
-        let form_generated_on = dd + "-" + mm + "-" + yyyy;
-
-        if (visitorSignature !== "") {
-            let visitForm = new VisitFormModel({
-                montantCommission: montantCommission,
-                firstName: firstName,
-                lastName: lastName,
-                passportNumber: passportNumber,
-                streetAddress1: streetAddress1,
-                streetAddress2: streetAddress2,
-                city: city,
-                province: province,
-                zip: zip,
-                country: country,
-                phoneNumber: phoneNumber,
-                visitorEmail: visitorEmail,
-                agentEmail: agentEmail,
-                referenceAppartment1: referenceAppartment1,
-                detailsReferenceAppartment1: detailsReferenceAppartment1,
-                referenceAppartment2: referenceAppartment2,
-                detailsReferenceAppartment2: detailsReferenceAppartment2,
-                referenceAppartment3: referenceAppartment3,
-                detailsReferenceAppartment3: detailsReferenceAppartment3,
-                visitorSignature: visitorSignature,
-                formGeneratedOn: form_generated_on,
-                formLanguage: formLanguage,
-                formAgent: formAgent,
-                formSignedOn: form_generated_on,
-            })
-
-            visitForm.save().then(success => {
-                return res.status(200).json({
-                    status: true,
-                    message: 'Form Created Successfully!',
-                    formId: success._id
-                })
-            }).catch(err => {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Form Create Failed!'
-                })
-            })
-        } else {
-            let visitForm = new VisitFormModel({
-                montantCommission: montantCommission,
-                firstName: firstName,
-                lastName: lastName,
-                passportNumber: passportNumber,
-                streetAddress1: streetAddress1,
-                streetAddress2: streetAddress2,
-                city: city,
-                province: province,
-                zip: zip,
-                country: country,
-                phoneNumber: phoneNumber,
-                visitorEmail: visitorEmail,
-                agentEmail: agentEmail,
-                referenceAppartment1: referenceAppartment1,
-                detailsReferenceAppartment1: detailsReferenceAppartment1,
-                referenceAppartment2: referenceAppartment2,
-                detailsReferenceAppartment2: detailsReferenceAppartment2,
-                referenceAppartment3: referenceAppartment3,
-                detailsReferenceAppartment3: detailsReferenceAppartment3,
-                visitorSignature: visitorSignature,
-                formGeneratedOn: form_generated_on,
-                formLanguage: formLanguage,
-                formAgent: formAgent,
-            })
-
-            visitForm.save().then(success => {
-                return res.status(200).json({
-                    status: true,
-                    message: 'Form Created Successfully!',
-                    formId: success._id
-                })
-            }).catch(err => {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Form Create Failed!'
-                })
-            })
-        }
-
-        
+    } catch(err) {
+        console.log(err);
+        return res.status(400).json({
+            status: false,
+            message: 'Form Create Failed! Please Try Again.'
+        })
     }
 }
 
