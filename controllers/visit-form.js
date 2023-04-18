@@ -117,131 +117,132 @@ exports.saveVisitForm = async (req, res, next) => {
     try {
         let result = await VisitFormModel.findById(visitFormId);
         if (result) {
+            let datetoday = new Date();
+            let dd = String(datetoday.getDate()).padStart(2, '0');
+            let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
+            let yyyy = datetoday.getFullYear();
+            let form_signed_on = "";
             if (visitorSignature !== '') {
-                let datetoday = new Date();
-                let dd = String(datetoday.getDate()).padStart(2, '0');
-                let mm = String(datetoday.getMonth() + 1).padStart(2, '0'); //January is 0!
-                let yyyy = datetoday.getFullYear();
-                let form_signed_on = dd + "-" + mm + "-" + yyyy;
-                await VisitFormModel.findByIdAndUpdate(visitFormId, {
-                    montantCommission: montantCommission,
-                    firstName: firstName,
-                    lastName: lastName,
-                    passportNumber: passportNumber,
-                    streetAddress1: streetAddress1,
-                    streetAddress2: streetAddress2,
-                    city: city,
-                    province: province,
-                    zip: zip,
-                    country: country,
-                    phoneNumber: phoneNumber,
-                    visitorEmail: visitorEmail,
-                    agentEmail: agentEmail,
-                    referenceAppartment1: referenceAppartment1,
-                    detailsReferenceAppartment1: detailsReferenceAppartment1,
-                    referenceAppartment2: referenceAppartment2,
-                    detailsReferenceAppartment2: detailsReferenceAppartment2,
-                    referenceAppartment3: referenceAppartment3,
-                    detailsReferenceAppartment3: detailsReferenceAppartment3,
-                    visitorSignature: visitorSignature,
-                    formSignedOn: form_signed_on,
-                }).then(updateSuccess => {
-                    console.log("UpdateSuccess - " , updateSuccess);
-                    if (agentEmail !== "") {
-                        let summary = "";
-                        if (updateSuccess.formLanguage == 'Hebrew') {
-                            if (updateSuccess.montantCommission === 'location') {
-                                summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
-                            } else if (updateSuccess.montantCommission === 'achat') {
-                                summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
-                            } else {
-                                summary = updateSuccess.montantCommission;
-                            }    
-                        } else if ( updateSuccess.formLanguage == "French") {
-                            if (updateSuccess.montantCommission === 'location') {
-                                summary = "b) Location: montant d'un mois de loyer H. T"
-                            } else if (updateSuccess.montantCommission === 'achat') {
-                                summary = 'a) Achat: 2% H. T du montant total de la transaction'
-                            } else {
-                                summary = updateSuccess.montantCommission;
-                            }
-                        } else if (updateSuccess.formLanguage == "English") {
-                            if (updateSuccess.montantCommission === 'location') {
-                                summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
-                            } else if (updateSuccess.montantCommission === 'achat') {
-                                summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
-                            } else {
-                                summary = updateSuccess.montantCommission;
-                            }
-                        }
-                        let data = {
-                            date: updateSuccess.formSignedOn == undefined ? '' : updateSuccess.formSignedOn,
-                            name: updateSuccess.firstName + " " + updateSuccess.lastName,
-                            summary: summary == undefined ? '' : summary, 
-                            passportNumber: updateSuccess.passportNumber == undefined ? '' : updateSuccess.passportNumber,
-                            address: updateSuccess.streetAddress1 == undefined ? '' : updateSuccess.streetAddress1 + " " + updateSuccess.streetAddress2 == undefined ? '' : updateSuccess.streetAddress2,
-                            phoneNumber: updateSuccess.phoneNumber == undefined ? '' : updateSuccess.phoneNumber,
-                            email: updateSuccess.visitorEmail == undefined ? '' : updateSuccess.visitorEmail,
-                            propertyAddress1: updateSuccess.referenceAppartment1 == undefined ? '' : updateSuccess.referenceAppartment1,
-                            propertyDetails1: updateSuccess.detailsReferenceAppartment1 == undefined ? '' : updateSuccess.detailsReferenceAppartment1,
-                            propertyAddress2: updateSuccess.referenceAppartment2 == undefined ? '' : updateSuccess.referenceAppartment2,
-                            propertyDetails2: updateSuccess.detailsReferenceAppartment2 == undefined ? '' : updateSuccess.detailsReferenceAppartment2,
-                            propertyAddress3: updateSuccess.referenceAppartment3 == undefined ? '' : updateSuccess.referenceAppartment3,
-                            propertyDetails3: updateSuccess.detailsReferenceAppartment3 == undefined ? '' : updateSuccess.detailsReferenceAppartment3,
-                            signature: updateSuccess.visitorSignature,
-                            firstName: updateSuccess.firstName,
-                            id: updateSuccess._id,
-                            formLanguage: updateSuccess.formLanguage,
-                        }
-                        formPromise(data)
-                        .then(async (success) => {
-                            let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
-                            let uploadResult = await uploadToCloudinary(file);
-                            const mailData = {
-                                from: 'eveniscrm@gmail.com',  // sender address
-                                to: [agentEmail],   // list of receivers
-                                subject: `Copy du bon de visite signé ${success.firstName}`,
-                                text: 'That was easy!',
-                                html: `Hello, <br/> Please see in attachement of this email the copy of the PDF signed.`,
-                                attachments: [{
-                                    filename: success.firstName+"-"+success._id + ".pdf",
-                                    path: uploadResult.url,
-                                }]
-                            };
-                            transporter.sendMail(mailData, (err, info) => {
-                                if (err) {
-                                    console.log(err)
-                                } else {
-                                    //////console.loge.log(info)
-                                    return res.status(200).json({
-                                        status: true,
-                                        message: 'Form Generated and Sent Successfully!',
-                                    })
-                                }
-                            })
-                        }).catch(err => {
-                            console.log(err)
-                            return res.status(400).json({
-                                status: false,
-                            })
-                        })
-                    } else {
-                        return res.status(200).json({
-                            status: true,
-                            message: 'Form Updated Successfully!',
-                            formId: updateSuccess._id
-                        })
-                    }
-                    
-                }).catch(err => {
-                    console.log(err)
-                    return res.status(400).json({
-                        status: false,
-                        message: 'Form Update Failed!'
-                    })
-                })
+                form_signed_on = dd + "-" + mm + "-" + yyyy;
+            } else {
+                form_signed_on = "";
             }
-            
+            await VisitFormModel.findByIdAndUpdate(visitFormId, {
+                montantCommission: montantCommission,
+                firstName: firstName,
+                lastName: lastName,
+                passportNumber: passportNumber,
+                streetAddress1: streetAddress1,
+                streetAddress2: streetAddress2,
+                city: city,
+                province: province,
+                zip: zip,
+                country: country,
+                phoneNumber: phoneNumber,
+                visitorEmail: visitorEmail,
+                agentEmail: agentEmail,
+                referenceAppartment1: referenceAppartment1,
+                detailsReferenceAppartment1: detailsReferenceAppartment1,
+                referenceAppartment2: referenceAppartment2,
+                detailsReferenceAppartment2: detailsReferenceAppartment2,
+                referenceAppartment3: referenceAppartment3,
+                detailsReferenceAppartment3: detailsReferenceAppartment3,
+                visitorSignature: visitorSignature,
+                formSignedOn: form_signed_on,
+            }).then(updateSuccess => {
+                console.log('Update Success - ' , updateSuccess);
+                if (agentEmail !== "") {
+                    let summary = "";
+                    if (updateSuccess.formLanguage == 'Hebrew') {
+                        if (updateSuccess.montantCommission === 'location') {
+                            summary = 'b) בהשכרה: השכרה של 6 חודשים עד שנה אחת, תשלום של חודש חד פעמי.'
+                        } else if (updateSuccess.montantCommission === 'achat') {
+                            summary = 'a) בקניה : % 2 אחוז מהמחיר הכולל של הנכס'
+                        } else {
+                            summary = updateSuccess.montantCommission;
+                        }    
+                    } else if ( updateSuccess.formLanguage == "French") {
+                        if (updateSuccess.montantCommission === 'location') {
+                            summary = "b) Location: montant d'un mois de loyer H. T"
+                        } else if (updateSuccess.montantCommission === 'achat') {
+                            summary = 'a) Achat: 2% H. T du montant total de la transaction'
+                        } else {
+                            summary = updateSuccess.montantCommission;
+                        }
+                    } else if (updateSuccess.formLanguage == "English") {
+                        if (updateSuccess.montantCommission === 'location') {
+                            summary = "b) In Renting: Our office will receive one-month rent + VAT on a one year lease, and not less than one month rent on a shorter-term lease. "
+                        } else if (updateSuccess.montantCommission === 'achat') {
+                            summary = 'a) In Buying / Selling: our office will receive 2% + VAT from the final sales price'
+                        } else {
+                            summary = updateSuccess.montantCommission;
+                        }
+                    }
+                    let data = {
+                        date: updateSuccess.formSignedOn == undefined ? '' : updateSuccess.formSignedOn,
+                        name: updateSuccess.firstName + " " + updateSuccess.lastName,
+                        summary: summary == undefined ? '' : summary, 
+                        passportNumber: updateSuccess.passportNumber == undefined ? '' : updateSuccess.passportNumber,
+                        address: updateSuccess.streetAddress1 == undefined ? '' : updateSuccess.streetAddress1 + " " + updateSuccess.streetAddress2 == undefined ? '' : updateSuccess.streetAddress2,
+                        phoneNumber: updateSuccess.phoneNumber == undefined ? '' : updateSuccess.phoneNumber,
+                        email: updateSuccess.visitorEmail == undefined ? '' : updateSuccess.visitorEmail,
+                        propertyAddress1: updateSuccess.referenceAppartment1 == undefined ? '' : updateSuccess.referenceAppartment1,
+                        propertyDetails1: updateSuccess.detailsReferenceAppartment1 == undefined ? '' : updateSuccess.detailsReferenceAppartment1,
+                        propertyAddress2: updateSuccess.referenceAppartment2 == undefined ? '' : updateSuccess.referenceAppartment2,
+                        propertyDetails2: updateSuccess.detailsReferenceAppartment2 == undefined ? '' : updateSuccess.detailsReferenceAppartment2,
+                        propertyAddress3: updateSuccess.referenceAppartment3 == undefined ? '' : updateSuccess.referenceAppartment3,
+                        propertyDetails3: updateSuccess.detailsReferenceAppartment3 == undefined ? '' : updateSuccess.detailsReferenceAppartment3,
+                        signature: updateSuccess.visitorSignature,
+                        firstName: updateSuccess.firstName,
+                        id: updateSuccess._id,
+                        formLanguage: updateSuccess.formLanguage,
+                    }
+                    formPromise(data)
+                    .then(async (success) => {
+                        let file = success.filename.split("\\")[success.filename.split("\\").length - 1];
+                        let uploadResult = await uploadToCloudinary(file);
+                        const mailData = {
+                            from: 'eveniscrm@gmail.com',  // sender address
+                            to: [agentEmail],   // list of receivers
+                            subject: `Copy du bon de visite signé ${success.firstName}`,
+                            text: 'That was easy!',
+                            html: `Hello, <br/> Please see in attachement of this email the copy of the PDF signed.`,
+                            attachments: [{
+                                filename: success.firstName+"-"+success._id + ".pdf",
+                                path: uploadResult.url,
+                            }]
+                        };
+                        transporter.sendMail(mailData, (err, info) => {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                //////console.loge.log(info)
+                                return res.status(200).json({
+                                    status: true,
+                                    message: 'Form Generated and Sent Successfully!',
+                                })
+                            }
+                        })
+                    }).catch(err => {
+                        console.log(err)
+                        return res.status(400).json({
+                            status: false,
+                        })
+                    })
+                } else {
+                    return res.status(200).json({
+                        status: true,
+                        message: 'Form Updated Successfully!',
+                        formId: updateSuccess._id
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+                return res.status(400).json({
+                    status: false,
+                    message: 'Form Update Failed!'
+                })
+            })
         } else {
 
             let datetoday = new Date();
