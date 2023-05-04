@@ -67,7 +67,7 @@ const formPromise = async (data) => {
     let formDocument = {
         html: html,
         data: data,
-        path: `./signed-forms/${data.firstName + "-" + data.id}.pdf`
+        path: `./signed-forms/${data.id}.pdf`
     }
     const options = {
         format: 'A4',
