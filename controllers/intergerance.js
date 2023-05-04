@@ -10,7 +10,7 @@ const intergerancePromise = async (data) => {
     let formDocument = {
         html: html,
         data: data,
-        path: `./signed-forms/${data.agency_name + "-" + data.autoId}.pdf`
+        path: `./signed-forms/${data._id}.pdf`
     }
     const options = {
         format: 'A4',
@@ -298,6 +298,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 formSignedOn: formSignedOn
             }).then(success => {
                 let data = {
+                    _id: success._id,
                     autoId: success.autoId,
                     agency_name: success.agency.agency_name,
                     agency_id: success.agency.agency_id,
@@ -344,6 +345,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 notes: notes, // not mandatory
             }).then(success => {
                 let data = {
+                    _id: success._id,
                     autoId: success.autoId,
                     agency_name: success.agency.agency_name,
                     agency_id: success.agency.agency_id,
@@ -407,6 +409,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 newForm.save().then(async (success) => {
                     let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
                     let data = {
+                        _id: success._id,
                         autoId: form.autoId,
                         agency_name: form.agency.agency_name,
                         agency_id: form.agency.agency_id,
@@ -461,6 +464,7 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 newForm.save().then(async (success) => {
                     let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
                     let data = {
+                        _id: success._id,
                         autoId: form.autoId,
                         agency_name: form.agency.agency_name,
                         agency_id: form.agency.agency_id,
@@ -523,6 +527,7 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     if (result) {
         let data = {
+            _id: result._id,
             autoId: result.autoId,
             agency_name: result.agency.agency_name,
             agency_id: result.agency.agency_id,
