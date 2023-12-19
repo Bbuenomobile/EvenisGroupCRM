@@ -297,6 +297,10 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 signature: signature,
                 formSignedOn: formSignedOn
             }).then(success => {
+                console.log(success.commissionType);
+                if(success.commissionType.indexOf("%") > -1){
+                    success.commissionType = success.commissionType + 'מתווך הקונה מעביר למתווך המוכר';
+                }
                 let data = {
                     _id: success._id,
                     autoId: success.autoId,
@@ -344,6 +348,10 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 property: property,
                 notes: notes, // not mandatory
             }).then(success => {
+                console.log(success.commissionType);
+                if(success.commissionType.indexOf("%") > -1){
+                    success.commissionType = success.commissionType + 'מתווך הקונה מעביר למתווך המוכר';
+                }
                 let data = {
                     _id: success._id,
                     autoId: success.autoId,
@@ -408,6 +416,10 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 })
                 newForm.save().then(async (success) => {
                     let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
+                    console.log(form.commissionType);
+                    if(form.commissionType.indexOf("%") > -1){
+                        form.commissionType = form.commissionType + 'מתווך הקונה מעביר למתווך המוכר';
+                    }
                     let data = {
                         _id: success._id,
                         autoId: form.autoId,
@@ -463,6 +475,10 @@ exports.submitIntergeranceForm = async (req, res, next) => {
                 })
                 newForm.save().then(async (success) => {
                     let form = await IntergeranceForm.findById(success._id).populate('agency').populate('property').exec({});
+                    console.log(form.commissionType);
+                    if(form.commissionType.indexOf("%") > -1){
+                        form.commissionType = form.commissionType + 'מתווך הקונה מעביר למתווך המוכר';
+                    }
                     let data = {
                         _id: success._id,
                         autoId: form.autoId,
@@ -526,7 +542,10 @@ exports.prepareIntergeranceForm = async (req, res, next) => {
     let { formId } = req.query;
     let result = await IntergeranceForm.findById(formId).populate('formAgent').populate('agency').populate('property');
     if (result) {
-        console.log(result.signature);
+        console.log(result.commissionType);
+        if(result.commissionType.indexOf("%") > -1){
+            result.commissionType = result.commissionType + 'מתווך הקונה מעביר למתווך המוכר';
+        }
         let data = {
             _id: result._id,
             autoId: result.autoId,
